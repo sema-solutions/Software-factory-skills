@@ -105,9 +105,10 @@ if [ "$DB_SCRIPTS" = "auto" ]; then
   for f in docker-compose.yml docker-compose.yaml compose.yml compose.yaml; do [ -e "$f" ] && DB_SCRIPTS="yes"; done
 fi
 if [ "$DB_SCRIPTS" = "yes" ]; then
+  place "$tpl/scripts/worktree-id.sh" "scripts/worktree-id.sh"
   place "$tpl/scripts/worktree-env.sh" "scripts/worktree-env.sh"
   place "$tpl/scripts/db-guard.sh" "scripts/db-guard.sh"
-  [ "$DRY" = 1 ] || chmod +x scripts/worktree-env.sh scripts/db-guard.sh 2>/dev/null || true
+  [ "$DRY" = 1 ] || chmod +x scripts/worktree-id.sh scripts/worktree-env.sh scripts/db-guard.sh 2>/dev/null || true
   log "db scripts placed. Edit the settings block in scripts/worktree-env.sh (DB_PREFIX, DB_CONTAINER, DB_USER/PASSWORD) and set the same DB_PREFIX in scripts/db-guard.sh."
   log "then wire db-guard in package.json: \"db:migrate\": \"bash scripts/db-guard.sh && <migrate>\" (same for seed/reset) and make the dev script honor \$PORT."
 else

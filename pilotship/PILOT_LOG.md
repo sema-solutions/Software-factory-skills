@@ -30,6 +30,8 @@ Also learned: the primary checkout on this Mac had no `.env.local`, so the scrip
 
 | Date | File | Change | Why |
 |---|---|---|---|
+| 2026-09-21 | `templates/scripts/worktree-id.sh` (new), `worktree-env.sh`, `db-guard.sh`, `factory-init.sh` | collision-resistant worktree id (prefix + sha256 hash) shared by both scripts | Greptile finding on pilotship-web #207: truncated slugs could collide and defeat isolation |
+| 2026-09-21 | `before-and-after/scripts/adapters/gist.sh` | secret gists instead of public | privacy of portal screenshots |
 | 2026-09-21 | `before-and-after/scripts/upload-and-copy.sh` | default adapter 0x0st → gist | Greptile finding on pilotship-web #207: the vendored default contradicted AGENTS.md |
 | 2026-09-21 | `pilotship/*` | Initial Pilotship layer | Phase 0 |
 | 2026-09-21 | `templates/scripts/worktree-env.sh` | `DB_BOOTSTRAP_SQL` hook + `psql_db` helper | Finding 1 and 2 above |

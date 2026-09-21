@@ -6,7 +6,7 @@
 #   --markdown    Generate PR markdown table and copy to clipboard
 #
 # Environment:
-#   IMAGE_ADAPTER    Storage adapter to use (default: 0x0st)
+#   IMAGE_ADAPTER    Storage adapter to use (default: gist; Pilotship edit, upstream is 0x0st)
 #                    Available: 0x0st, gist, blob
 #
 # Adapter-specific environment variables:

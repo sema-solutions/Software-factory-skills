@@ -8,7 +8,7 @@
 #   - gh CLI installed and authenticated
 #
 # Notes:
-#   - Creates a public gist for each upload
+#   - Creates a secret (unlisted) gist for each upload (Pilotship edit; upstream: public)
 #   - Files persist indefinitely
 #   - Requires GitHub authentication
 
@@ -33,7 +33,8 @@ if ! command -v gh &> /dev/null; then
 fi
 
 # Create gist and capture output
-GIST_OUTPUT=$(gh gist create "$FILE" --public 2>&1)
+# Pilotship edit: secret gist (unlisted, URL-only) instead of upstream's --public.
+GIST_OUTPUT=$(gh gist create "$FILE" 2>&1)
 
 # Extract the gist URL from output
 GIST_URL=$(echo "$GIST_OUTPUT" | grep -o 'https://gist.github.com/[^ ]*' | head -1)
