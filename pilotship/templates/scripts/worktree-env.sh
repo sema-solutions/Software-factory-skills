@@ -29,6 +29,7 @@ ENV_FILE="${ENV_FILE:-.env.local}"                # env file the app reads; copi
 INSTALL_CMD="${INSTALL_CMD-npm install}"         # set to an empty string to skip (VAR="" ...)
 MIGRATE_CMD="${MIGRATE_CMD-npm run db:migrate}"  # set to an empty string to skip (VAR="" ...)
 SEED_CMD="${SEED_CMD-npm run db:seed}"           # set to an empty string to skip (VAR="" ...)
+DB_BOOTSTRAP_SQL="${DB_BOOTSTRAP_SQL-}"           # optional SQL file applied once to a freshly created database (roles, grants, extensions); receives -v dbname=<db>
 # -----------------------------------------------------------------------------
 
 log()  { printf '\033[1;34m[worktree-env]\033[0m %s\n' "$*"; }
@@ -63,6 +64,15 @@ psql_admin() {
     docker exec -i -e PGPASSWORD="$DB_PASSWORD" "$DB_CONTAINER" psql -U "$DB_USER" -d postgres -v ON_ERROR_STOP=1 -qtA "$@"
   else
     PGPASSWORD="$DB_PASSWORD" psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d postgres -v ON_ERROR_STOP=1 -qtA "$@"
+  fi
+}
+
+# same as psql_admin but connected to the worktree database itself
+psql_db() {
+  if [ -n "$DB_CONTAINER" ]; then
+    docker exec -i -e PGPASSWORD="$DB_PASSWORD" "$DB_CONTAINER" psql -U "$DB_USER" -d "$db_name" -v ON_ERROR_STOP=1 -qtA "$@"
+  else
+    PGPASSWORD="$DB_PASSWORD" psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$db_name" -v ON_ERROR_STOP=1 -qtA "$@"
   fi
 }
 
@@ -109,6 +119,10 @@ if db_exists; then
 else
   log "creating database ${db_name}"
   psql_admin -c "CREATE DATABASE \"${db_name}\""
+  if [ -n "$DB_BOOTSTRAP_SQL" ] && [ -f "$DB_BOOTSTRAP_SQL" ]; then
+    log "bootstrapping ${db_name} from $DB_BOOTSTRAP_SQL"
+    psql_db -v dbname="$db_name" -f - < "$DB_BOOTSTRAP_SQL"
+  fi
 fi
 
 # --- deps, migrate, seed (all run with the new env so DATABASE_URL points at the worktree DB)
