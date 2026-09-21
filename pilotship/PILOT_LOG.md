@@ -10,7 +10,8 @@ Pilot repo: `Pilotship-io/pilotship-web` · Started: 2026-09-21
 
 | Date | Repo / PR | Harness | Model | Isolate | Build | Prove | Ship (loops to 5/5) | What broke | Fix applied where |
 |---|---|---|---|---|---|---|---|---|---|
-| | | | | | | | | | |
+| 2026-09-21 | pilotship-web #206 (throwaway, closed) | Claude Code | Fable 5.1 | 1 | 1 | n/a (docs carve-out) | 2 reviews, 4/5 → 5/5 | Nothing. Verified Greptile install: summary comment with `Confidence Score: N/5` in ~100s, check run named `Greptile Review`, `@greptile review` re-triggers in ~2 min. Greptile EDITS its summary comment (watch `updated_at`) and re-uses the check run (count stays 1). Both already handled by greploop. | Greptile settings: retrigger-on-push OFF, update-PR-description OFF, Prompt-to-Fix ON, sequence diagrams OFF |
+| 2026-09-21 | pilotship-web #207 (chore/software-factory-a1c7) | Claude Code | Fable 5.1 | 5 | 120 | 40 | 3 loops, 2/5 → 2/5 → 5/5 (~35 min) | Five setup findings (list below) + six Greptile findings across two rounds, all real, all fixed: slug collision, weak SET ROLE handling, quoted URL, public uploads (default host, then public gists), port collision | pilotship-web scripts + fork template (PR #2) |
 
 Time columns are wall-clock minutes for the beat, roughly. "What broke"
 means anything a human had to step in for: a skipped beat, a guard that
@@ -40,7 +41,7 @@ Also learned: the primary checkout on this Mac had no `.env.local`, so the scrip
 ## Open questions to settle before v1.0
 
 - [ ] greploop iteration cap: keep 10 or lower it?
-- [ ] Greptile auto-review on PR open, or only on `@greptile review`? (credits)
+- [x] Greptile auto-review on PR open (ON), retrigger on push OFF; greploop re-triggers with `@greptile review` (verified 2026-09-21, ~2 min per loop, 1 credit each; #207 took 3 loops)
 - [ ] Which PR types are exempt from proof? (docs-only, dependency bumps, CI config so far)
 - [ ] Does Cursor auto-load the skills, or does it need an explicit mention?
 - [ ] Does Codex CLI auto-load the skills, or does it need an explicit mention?
