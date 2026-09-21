@@ -56,7 +56,32 @@ case "$branch" in main|master) fail "refusing to run on '$branch'. Create a task
 . "$(dirname "$0")/worktree-id.sh"   # one definition of the worktree identity, shared with db-guard.sh
 slug="$(worktree_id "$branch")"
 db_name="${DB_PREFIX}_${slug}"
-port=$(( PORT_BASE + 16#$(hash_hex "$branch") % PORT_RANGE ))
+# Port: start from the branch hash, but never hand out a port another worktree
+# already recorded in its env file or that something is already listening on.
+# A port already written in THIS worktree's env file is kept, so re-runs are
+# stable. Probes forward through the range; fails loudly if the range is full.
+port_listening() { command -v lsof >/dev/null 2>&1 && lsof -nP -iTCP:"$1" -sTCP:LISTEN >/dev/null 2>&1; }
+ports_claimed_by_siblings() {
+  git worktree list --porcelain | awk '/^worktree /{sub(/^worktree /,""); print}' | while IFS= read -r wt; do
+    [ "$wt" = "$repo_root" ] && continue
+    [ -f "$wt/$ENV_FILE" ] && grep -hE '^PORT=[0-9]+$' "$wt/$ENV_FILE" | cut -d= -f2
+  done
+}
+own_port="$( [ -f "$repo_root/$ENV_FILE" ] && grep -hE '^PORT=[0-9]+$' "$repo_root/$ENV_FILE" | tail -n1 | cut -d= -f2 || true)"
+claimed="$(ports_claimed_by_siblings | tr '\n' ' ')"
+start=$(( 16#$(hash_hex "$branch") % PORT_RANGE ))
+port=""
+if [ -n "$own_port" ]; then
+  port="$own_port"
+else
+  for try in $(seq 0 $(( PORT_RANGE - 1 ))); do
+    cand=$(( PORT_BASE + (start + try) % PORT_RANGE ))
+    case " $claimed " in *" $cand "*) continue ;; esac
+    port_listening "$cand" && continue
+    port="$cand"; break
+  done
+  [ -n "$port" ] || fail "no free port in [$PORT_BASE, $((PORT_BASE + PORT_RANGE))). Free one or raise PORT_RANGE."
+fi
 
 # --- psql helper: docker exec when a container is named, local psql otherwise
 psql_admin() {
@@ -131,9 +156,9 @@ if [ -n "$INSTALL_CMD" ] && [ ! -d node_modules ]; then log "installing dependen
 if [ -n "$MIGRATE_CMD" ]; then log "migrating";  eval "$MIGRATE_CMD"; fi
 if [ -n "$SEED_CMD" ];    then log "seeding";    eval "$SEED_CMD";    fi
 
-# --- port sanity
-if command -v lsof >/dev/null && lsof -iTCP:"$port" -sTCP:LISTEN >/dev/null 2>&1; then
-  log "WARNING: something already listens on $port. Confirm it is yours before trusting http://localhost:$port"
+# --- port sanity (a re-used own_port may have been taken by an unrelated process since)
+if port_listening "$port"; then
+  log "WARNING: something already listens on $port. Confirm it is yours (lsof -i :$port) before trusting http://localhost:$port"
 fi
 
 cat <<EOF
