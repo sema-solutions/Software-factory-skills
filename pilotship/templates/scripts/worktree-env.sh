@@ -53,10 +53,10 @@ branch="$(git branch --show-current)"
 [ -n "$branch" ] || fail "detached HEAD; check out a branch first"
 case "$branch" in main|master) fail "refusing to run on '$branch'. Create a task branch first." ;; esac
 
-slug="$(printf '%s' "$branch" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9]+/_/g; s/^_+//; s/_+$//' | cut -c1-40)"
+. "$(dirname "$0")/worktree-id.sh"   # one definition of the worktree identity, shared with db-guard.sh
+slug="$(worktree_id "$branch")"
 db_name="${DB_PREFIX}_${slug}"
-hash="$(printf '%s' "$slug" | cksum | cut -d' ' -f1)"
-port=$(( PORT_BASE + hash % PORT_RANGE ))
+port=$(( PORT_BASE + 16#$(hash_hex "$branch") % PORT_RANGE ))
 
 # --- psql helper: docker exec when a container is named, local psql otherwise
 psql_admin() {

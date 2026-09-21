@@ -44,6 +44,8 @@ case "$host" in
   *) fail "DATABASE_URL points at '$host', not a local database. Local db scripts only run against local databases." ;;
 esac
 
+. "$(dirname "$0")/worktree-id.sh"   # one definition of the worktree identity, shared with worktree-env.sh
+
 git_dir="$(cd "$(git rev-parse --git-dir)" && pwd -P)"
 common_dir="$(cd "$(git rev-parse --git-common-dir)" && pwd -P)"
 branch="$(git branch --show-current)"
@@ -53,8 +55,7 @@ if [ "$git_dir" = "$common_dir" ]; then
   where="primary checkout"
 else
   [ -n "$branch" ] || fail "detached HEAD in a worktree; check out a branch"
-  slug="$(printf '%s' "$branch" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9]+/_/g; s/^_+//; s/_+$//' | cut -c1-40)"
-  expected="${DB_PREFIX}_${slug}"
+  expected="${DB_PREFIX}_$(worktree_id "$branch")"
   where="worktree on branch $branch"
 fi
 
