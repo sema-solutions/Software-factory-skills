@@ -59,7 +59,10 @@ git fetch upstream && git checkout main && git merge upstream/main
 
 Upstream folders (`new-feature/`, `code-structure/`, `evidence-driven-testing/`,
 `before-and-after/`, `greploop/`, `greploop-apps/`, `unslop/`, `AGENTS.md`,
-`tests/`) are left as upstream ships them so merges stay clean. If a skill
+`tests/`) are left as upstream ships them so merges stay clean, with one
+deliberate exception: `before-and-after/scripts/upload-and-copy.sh` defaults
+`IMAGE_ADAPTER` to `gist` instead of the public 0x0.st host (see the comment
+there). Re-check that line after every upstream merge. If a skill
 needs Pilotship behavior, add a variant under `pilotship/skills/<name>/` rather
 than editing the vendored one.
 

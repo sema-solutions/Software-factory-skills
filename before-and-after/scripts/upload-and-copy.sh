@@ -22,8 +22,10 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ADAPTERS_DIR="$SCRIPT_DIR/adapters"
 
-# Default adapter
-IMAGE_ADAPTER="${IMAGE_ADAPTER:-0x0st}"
+# Default adapter. Pilotship edit: gist (authenticated, private-ish) instead of
+# upstream's 0x0.st, because screenshots of the portal can show client data.
+# AGENTS.md forbids the public host; keep this default in step with the fork.
+IMAGE_ADAPTER="${IMAGE_ADAPTER:-gist}"
 
 BEFORE_FILE="$1"
 AFTER_FILE="$2"
