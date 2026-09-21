@@ -1,9 +1,73 @@
-# Skills
+# Pilotship Software Factory
 
-A collection of [agent skills](https://code.claude.com/docs/en/skills) for Claude Code. Each skill is a folder containing a `SKILL.md` with frontmatter (name, description) and instructions that Claude loads on demand when the task matches.
+The repeatable, model- and harness-agnostic way we ship software at
+[Pilotship](https://pilotship.io). Every task in every repo moves through four
+beats, **isolate → build → prove → ship**, each backed by a markdown skill in
+this repo. It works the same in Claude Code, Cursor, and Codex CLI, with any
+model.
 
-[![skills.sh](https://skills.sh/b/michaelshimeles/skills)](https://skills.sh/michaelshimeles/skills)
+Forked from [michaelshimeles/skills](https://github.com/michaelshimeles/skills)
+(the skills from the "software factory" walkthrough). Upstream skills stay
+vendored and unmodified under their own folders; everything Pilotship-specific
+lives under [`pilotship/`](pilotship/).
 
+## Start here
+
+| If you are... | Read |
+|---|---|
+| A developer joining a factory-enabled repo | [`pilotship/ONBOARDING.md`](pilotship/ONBOARDING.md) |
+| Rolling the factory out to a repo | [`pilotship/ROLLOUT_CHECKLIST.md`](pilotship/ROLLOUT_CHECKLIST.md), then run `pilotship/factory-init.sh` |
+| Wondering why Greptile, and how to swap it | [`pilotship/REVIEW_BOTS.md`](pilotship/REVIEW_BOTS.md) |
+| Logging what broke during the pilot | [`pilotship/PILOT_LOG.md`](pilotship/PILOT_LOG.md) |
+
+### Install into a repo
+
+```bash
+git clone https://github.com/sema-solutions/Software-factory-skills.git ~/Software-factory-skills
+cd <your-repo> && git checkout -b chore/software-factory
+bash ~/Software-factory-skills/pilotship/factory-init.sh
+```
+
+The script installs the seven skills into `.agents/skills/` (canonical, read
+by Cursor and Codex) with symlinks into `.claude/skills/` (Claude Code), pins
+them in `skills-lock.json`, appends the factory block to `.gitignore`, and
+drops in the `AGENTS.md`, `CLAUDE.md`, PR template, and the two database
+isolation scripts. It never overwrites an existing file: where one exists it
+writes a `*.factory.*` copy beside it for you to merge. Run it again any time
+to pick up template changes. `npx skills update` refreshes the skills alone.
+
+### What `pilotship/` contains
+
+| Path | What it is |
+|---|---|
+| `AGENTS.template.md` | The contract: four beats, multi-agent rules, shared-resource (database/port) rules, Pilotship house rules, a repo-specific section to fill |
+| `CLAUDE.template.md` | Thin Claude Code pointer to AGENTS.md |
+| `factory-init.sh` | Idempotent installer described above |
+| `templates/PULL_REQUEST_TEMPLATE.md` | PR body with a mandatory Proof section |
+| `templates/gitignore.factory` | Worktree and evidence paths to ignore |
+| `templates/scripts/worktree-env.sh` | Gives each worktree its own database and port |
+| `templates/scripts/db-guard.sh` | Refuses migrate/seed/reset against the wrong database |
+| `templates/github/pr-agent.yml` | Optional open-source reviewer workflow (PR-Agent) |
+| `ONBOARDING.md`, `ROLLOUT_CHECKLIST.md`, `REVIEW_BOTS.md`, `PILOT_LOG.md` | Team docs |
+
+### Keeping up with upstream
+
+```bash
+git remote add upstream https://github.com/michaelshimeles/skills.git   # once
+git fetch upstream && git checkout main && git merge upstream/main
+```
+
+Upstream folders (`new-feature/`, `code-structure/`, `evidence-driven-testing/`,
+`before-and-after/`, `greploop/`, `greploop-apps/`, `unslop/`, `AGENTS.md`,
+`tests/`) are left as upstream ships them so merges stay clean. If a skill
+needs Pilotship behavior, add a variant under `pilotship/skills/<name>/` rather
+than editing the vendored one.
+
+---
+
+# Upstream skills reference
+
+The rest of this file is upstream's README, kept for reference.
 
 ## Available skills
 
@@ -88,7 +152,7 @@ Use it when:
 Use `npx skills` to install skills to most coding agents:
 
 ```bash
-npx skills add michaelshimeles/skills
+npx skills add sema-solutions/Software-factory-skills
 ```
 
 Claude Code picks up the skill automatically and invokes it when a task matches the skill's description. You can also invoke one explicitly with `/code-structure` or `/evidence-driven-testing`.
