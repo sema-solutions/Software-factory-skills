@@ -1,0 +1,10 @@
+
+# --- pilotship software factory (managed by factory-init.sh) ---
+# worktrees created by agents or harnesses
+.worktrees/
+.claude/worktrees/
+# evidence captured during the Prove beat; uploaded, never committed
+.artifacts/
+# per-worktree env written by scripts/worktree-env.sh
+.env.worktree
+# --- end pilotship software factory ---
