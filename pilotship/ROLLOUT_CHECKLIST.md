@@ -16,6 +16,7 @@ per repo once the pilot has been dialed in.
 
 - [ ] `AGENTS.md`: four beats, multi-agent rules, house rules intact (merge into the existing file if there was one; the old content becomes the repo-specific section)
 - [ ] Repo-specific section filled: project at a glance, setup, commands and checks, hard invariants, environment, shared local resources, what can't be tested locally
+- [ ] `bash <factory>/pilotship/scripts/check-contract.sh AGENTS.md` passes: the shared sections are verbatim, every repo note sits below the REPO-SPECIFIC marker (the reviewer enforces the header's "keep intact" rule literally; pilotship-web #217 lost a round to it)
 - [ ] `CLAUDE.md` is a thin pointer (existing Claude-specific notes kept)
 - [ ] `.github/PULL_REQUEST_TEMPLATE.md` in place with the Proof section
 - [ ] Any `*.factory.*` leftovers merged and deleted
