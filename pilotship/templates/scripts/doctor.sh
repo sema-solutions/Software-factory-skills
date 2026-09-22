@@ -26,6 +26,57 @@ ok()   { [ $quiet = 1 ] || printf '  \033[32m✓\033[0m %s\n' "$1"; }
 warn() { warns=$((warns+1)); [ $quiet = 1 ] || printf '  \033[33m!\033[0m %s\n      fix: %s\n' "$1" "$2"; }
 fail() { fails=$((fails+1)); printf '  \033[31m✗\033[0m %s\n      fix: %s\n' "$1" "$2"; }
 
+# --- operating system: the factory's scripts are bash + Unix tools. macOS and
+# Linux run them natively; Windows runs them inside WSL2 (Ubuntu), which is
+# Linux. A native Windows shell (Git Bash, MSYS, Cygwin, PowerShell) is not
+# supported: npm runs scripts through cmd.exe there, symlinks need extra
+# setup, and lsof does not exist. DOCTOR_UNAME overrides detection for tests.
+uname_s="${DOCTOR_UNAME:-$(uname -s 2>/dev/null || echo unknown)}"
+case "$uname_s" in
+  MINGW*|MSYS*|CYGWIN*|Windows*)
+    printf '  \033[31m✗\033[0m native Windows shell detected (%s): the factory runs on Windows inside WSL2, not in Git Bash / PowerShell\n' "$uname_s"
+    printf '      fix: install WSL2 with Ubuntu (wsl --install), then inside it: install Node %s, git, gh, Docker Desktop with WSL integration enabled for the distro, clone the repo there, and run npm run doctor again.\n' "${NODE_MAJOR_WANTED:-22}"
+    printf '      setup guide: pilotship/ONBOARDING.md (Windows section) at %s\n' "$FACTORY_REPO"
+    exit 1 ;;
+  Linux)
+    os=linux
+    if grep -qi microsoft /proc/version 2>/dev/null; then wsl=1; else wsl=0; fi
+    # Package-manager-aware hints; distro-neutral wording when none is recognised.
+    if command -v apt-get >/dev/null 2>&1; then pkg() { echo "sudo apt install $1"; }
+    elif command -v dnf >/dev/null 2>&1; then pkg() { echo "sudo dnf install $1"; }
+    elif command -v pacman >/dev/null 2>&1; then pkg() { echo "sudo pacman -S $1"; }
+    elif command -v zypper >/dev/null 2>&1; then pkg() { echo "sudo zypper install $1"; }
+    else pkg() { echo "install $1 with your distribution's package manager"; }; fi
+    HINT_GH="$(pkg gh) (or https://cli.github.com), then gh auth login"
+    if [ "$wsl" = 1 ]; then
+      HINT_DOCKER_INSTALL="install Docker Desktop on Windows and enable WSL integration for this distro (Settings → Resources → WSL integration)"
+      HINT_DOCKER_START="start Docker Desktop on Windows (WSL integration on for this distro), then start the database (see AGENTS.md → Setup)"
+    else
+      HINT_DOCKER_INSTALL="install Docker Engine per https://docs.docker.com/engine/install/ for your distribution, add yourself to the docker group, then start the database (see AGENTS.md → Setup)"
+      HINT_DOCKER_START="start the Docker service (systemd: sudo systemctl start docker; otherwise your init system's equivalent), then start the database (see AGENTS.md → Setup)"
+    fi
+    HINT_LSOF="$(pkg lsof)" ;;
+  Darwin)
+    os=mac; wsl=0
+    HINT_GH="brew install gh && gh auth login"
+    HINT_DOCKER_INSTALL="install Docker Desktop, then start the database (see AGENTS.md → Setup)"
+    HINT_DOCKER_START="open -a Docker, wait for it, then start the database (see AGENTS.md → Setup)"
+    HINT_LSOF="lsof ships with macOS; check your PATH" ;;
+  *)
+    os=other; wsl=0
+    HINT_GH="install the GitHub CLI (https://cli.github.com) && gh auth login"
+    HINT_DOCKER_INSTALL="install Docker, then start the database (see AGENTS.md → Setup)"
+    HINT_DOCKER_START="start the Docker daemon, then start the database (see AGENTS.md → Setup)"
+    HINT_LSOF="install lsof" ;;
+esac
+if [ $quiet = 0 ]; then
+  case "$os" in
+    mac) ok "macOS" ;;
+    linux) [ "$wsl" = 1 ] && ok "Linux inside WSL2 (supported; Docker Desktop must have WSL integration on for this distro)" || ok "Linux" ;;
+    *) warn "unrecognised OS ($uname_s); the scripts assume macOS or Linux" "use macOS, Linux, or WSL2 on Windows" ;;
+  esac
+fi
+
 repo_root="$(git rev-parse --show-toplevel 2>/dev/null)" || { fail "not inside a git checkout" "cd into the repo"; exit 1; }
 common_dir="$(git rev-parse --git-common-dir)"
 primary_root="$(cd "$common_dir/.." && pwd -P)"
@@ -44,8 +95,8 @@ for t in git npm npx python3; do command -v "$t" >/dev/null 2>&1 && ok "$t" || f
 if command -v gh >/dev/null 2>&1; then
   if gh auth status >/dev/null 2>&1; then ok "gh authenticated as $(gh api user -q .login 2>/dev/null || echo '?')"
   else fail "gh is installed but not signed in (PRs, reviews and the merge loop need it)" "gh auth login"; fi
-else fail "gh (GitHub CLI) not found" "brew install gh && gh auth login"; fi
-command -v lsof >/dev/null 2>&1 && ok "lsof" || warn "lsof not found (port ownership checks are skipped)" "install lsof"
+else fail "gh (GitHub CLI) not found" "$HINT_GH"; fi
+command -v lsof >/dev/null 2>&1 && ok "lsof" || warn "lsof not found (port ownership checks are skipped)" "$HINT_LSOF"
 
 # --- repo state
 if [ $quiet = 0 ] && [ -f "$repo_root/package.json" ]; then
@@ -59,9 +110,9 @@ if [ -z "$missing" ]; then ok "factory skills installed (.agents/skills)"; else 
 # --- local database (only when the repo has one)
 if [ -n "$DB_CONTAINER" ]; then
   if ! command -v docker >/dev/null 2>&1; then
-    fail "docker not found" "install Docker Desktop, then start the database (see AGENTS.md → Setup)"
+    fail "docker not found" "$HINT_DOCKER_INSTALL"
   elif ! docker info >/dev/null 2>&1; then
-    fail "Docker daemon is not running" "open -a Docker, wait for it, then start the database (see AGENTS.md → Setup)"
+    fail "Docker daemon is not running" "$HINT_DOCKER_START"
   else
     if docker ps --format '{{.Names}}' | grep -qx "$DB_CONTAINER"; then
       hostport="$(docker port "$DB_CONTAINER" "$DB_PORT_IN_CONTAINER/tcp" 2>/dev/null | head -1 | sed -E 's/.*:([0-9]+)$/\1/')"

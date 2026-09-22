@@ -8,6 +8,22 @@ interchangeable. The workflow is not.
 This doc gets a developer from zero to their first factory PR in about an
 hour.
 
+## 0. Which machines
+
+- **macOS** and **Linux**: everything runs natively.
+- **Windows**: run the factory inside **WSL2** (Ubuntu). The scripts are Bash
+  plus Unix tools, and WSL2 is Linux, so nothing needs translating. Do the
+  whole setup below *inside* the distro: Node, git, `gh`, the repo clone,
+  and Docker Desktop with **WSL integration** switched on for that distro.
+  Claude Code, Cursor and Codex all run there. A native Windows shell (Git
+  Bash, PowerShell, cmd) is not supported: npm runs scripts through cmd.exe,
+  the Claude skill links are git symlinks, and `lsof` does not exist; the
+  doctor refuses it and points here.
+
+  ```powershell
+  wsl --install                # once, then reboot; opens Ubuntu
+  ```
+
 ## 1. One-time machine setup (15 minutes)
 
 ```bash
