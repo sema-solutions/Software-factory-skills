@@ -13,10 +13,18 @@ Pilot repo: `Pilotship-io/pilotship-web` · Started: 2026-09-21
 | 2026-09-21 | pilotship-web #206 (throwaway, closed) | Claude Code | Fable 5.1 | 1 | 1 | n/a (docs carve-out) | 2 reviews, 4/5 → 5/5 | Nothing. Verified Greptile install: summary comment with `Confidence Score: N/5` in ~100s, check run named `Greptile Review`, `@greptile review` re-triggers in ~2 min. Greptile EDITS its summary comment (watch `updated_at`) and re-uses the check run (count stays 1). Both already handled by greploop. | Greptile settings: retrigger-on-push OFF, update-PR-description OFF, Prompt-to-Fix ON, sequence diagrams OFF |
 | 2026-09-21 | pilotship-web #207 (chore/software-factory-a1c7) | Claude Code | Fable 5.1 | 5 | 120 | 40 | 3 loops, 2/5 → 2/5 → 5/5 (~35 min) | Five setup findings (list below) + six Greptile findings across two rounds, all real, all fixed: slug collision, weak SET ROLE handling, quoted URL, public uploads (default host, then public gists), port collision | pilotship-web scripts + fork template (PR #2) |
 | 2026-09-22 | pilotship-web #208 append_project_event (feat/append-project-event-e4b2) | Claude Code | Fable 5.1 | 4 (one command: worktree, db, port, deps, migrate, seed) | ~75 | ~40 | 6 loops, 2/5 → 5/5 → 5/5(stale) → 4/5 → 4/5 → 5/5 (~85 min) | Nothing in the factory itself. Greptile findings were all real: double-submit, cross-project idempotency collision, post-commit regen failure surfacing as 500, admin-connection write bypassing RLS, retry semantics in the form (three rounds), alias rule. One review reviewed the previous commit because the re-request beat the webhook; a 60 s wait before `@greptile review` fixed it. | pilotship-web only; process lessons below |
+| 2026-09-22 | pilotship-web #209 update_project MCP + CLI retainer (feat/update-project-mcp-7c1d) | Claude Code | Fable 5.1 | 4 | ~25 | ~15 | 2 loops, 4/5 → 5/5 (~20 min) | Nothing in the factory. Greptile: a NaN→null→clear bug in the CLI (also latent on the pre-existing --value flag) and a registration-only MCP test. The 60 s wait before re-requesting review worked: round 2 reviewed the fix commit. | pilotship-web only |
 
 Time columns are wall-clock minutes for the beat, roughly. "What broke"
 means anything a human had to step in for: a skipped beat, a guard that
 fired wrongly, a tool that was missing, a screenshot that leaked data.
+
+## Rep 2 lessons (pilotship-web #209, 2026-09-22)
+
+1. **Scope the rep from the code, not the note.** Phil's note said "update_project on MCP/CLI"; the action, REST and web surfaces and a CLI `update` already existed. Ten minutes of mapping turned a five-surface feature into a 68-line PR: one MCP tool plus four CLI options.
+2. **A registration-only MCP test is not enough for the reviewer.** Greptile wants the handler invoked. The pattern now exists in `src/mcp/tools/projects.test.ts` (stub `runActionTool`, call the SDK's stored `handler`, assert action + params + input shape); reuse it for every new tool.
+3. **Numeric CLI flags need a validator.** `Number('abc')` is NaN and `JSON.stringify` turns it into `null`, which our update schemas read as "clear". `usdToCents` is the house helper now; audit the other CLI commands that parse amounts.
+4. **The 60 s pause before `@greptile review` held.** Round 2 reviewed the fix commit on the first try.
 
 ## Rep 1 lessons (pilotship-web #208, 2026-09-22)
 
@@ -56,6 +64,7 @@ Also learned: the primary checkout on this Mac had no `.env.local`, so the scrip
 - [ ] Does Cursor auto-load the skills, or does it need an explicit mention? (not installed on Seth's Mac; test on Phil's)
 - [ ] Does Codex CLI auto-load the skills, or does it need an explicit mention? (same)
 - [x] Does Claude Code auto-load them? Yes (rep 1)
-- [ ] greploop: add a wait before re-requesting review after a push (rep 1 lesson 3)
+- [x] greploop: wait ~60 s before re-requesting review after a push (rep 1 lesson 3; confirmed rep 2)
+- [ ] CLI: audit every command that parses a money/number flag for the NaN → null → clear bug (rep 2 lesson 3)
 - [ ] Dev-only session bypass so the web surface can be proven locally (rep 1 lesson 2)
 - [ ] PR-Agent side-by-side: keep, drop, or make it the default for Phase 3?
