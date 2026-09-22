@@ -29,6 +29,7 @@ ENV_FILE="${ENV_FILE:-.env.local}"                # env file the app reads; copi
 INSTALL_CMD="${INSTALL_CMD-npm install}"         # set to an empty string to skip (VAR="" ...)
 MIGRATE_CMD="${MIGRATE_CMD-npm run db:migrate}"  # set to an empty string to skip (VAR="" ...)
 SEED_CMD="${SEED_CMD-npm run db:seed}"           # set to an empty string to skip (VAR="" ...)
+DB_BOOTSTRAP_SQL="${DB_BOOTSTRAP_SQL-}"           # optional SQL file applied once to a freshly created database (roles, grants, extensions); receives -v dbname=<db>
 # -----------------------------------------------------------------------------
 
 log()  { printf '\033[1;34m[worktree-env]\033[0m %s\n' "$*"; }
@@ -52,10 +53,35 @@ branch="$(git branch --show-current)"
 [ -n "$branch" ] || fail "detached HEAD; check out a branch first"
 case "$branch" in main|master) fail "refusing to run on '$branch'. Create a task branch first." ;; esac
 
-slug="$(printf '%s' "$branch" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9]+/_/g; s/^_+//; s/_+$//' | cut -c1-40)"
+. "$(dirname "$0")/worktree-id.sh"   # one definition of the worktree identity, shared with db-guard.sh
+slug="$(worktree_id "$branch")"
 db_name="${DB_PREFIX}_${slug}"
-hash="$(printf '%s' "$slug" | cksum | cut -d' ' -f1)"
-port=$(( PORT_BASE + hash % PORT_RANGE ))
+# Port: start from the branch hash, but never hand out a port another worktree
+# already recorded in its env file or that something is already listening on.
+# A port already written in THIS worktree's env file is kept, so re-runs are
+# stable. Probes forward through the range; fails loudly if the range is full.
+port_listening() { command -v lsof >/dev/null 2>&1 && lsof -nP -iTCP:"$1" -sTCP:LISTEN >/dev/null 2>&1; }
+ports_claimed_by_siblings() {
+  git worktree list --porcelain | awk '/^worktree /{sub(/^worktree /,""); print}' | while IFS= read -r wt; do
+    [ "$wt" = "$repo_root" ] && continue
+    [ -f "$wt/$ENV_FILE" ] && grep -hE '^PORT=[0-9]+$' "$wt/$ENV_FILE" | cut -d= -f2
+  done
+}
+own_port="$( [ -f "$repo_root/$ENV_FILE" ] && grep -hE '^PORT=[0-9]+$' "$repo_root/$ENV_FILE" | tail -n1 | cut -d= -f2 || true)"
+claimed="$(ports_claimed_by_siblings | tr '\n' ' ')"
+start=$(( 16#$(hash_hex "$branch") % PORT_RANGE ))
+port=""
+if [ -n "$own_port" ]; then
+  port="$own_port"
+else
+  for try in $(seq 0 $(( PORT_RANGE - 1 ))); do
+    cand=$(( PORT_BASE + (start + try) % PORT_RANGE ))
+    case " $claimed " in *" $cand "*) continue ;; esac
+    port_listening "$cand" && continue
+    port="$cand"; break
+  done
+  [ -n "$port" ] || fail "no free port in [$PORT_BASE, $((PORT_BASE + PORT_RANGE))). Free one or raise PORT_RANGE."
+fi
 
 # --- psql helper: docker exec when a container is named, local psql otherwise
 psql_admin() {
@@ -63,6 +89,15 @@ psql_admin() {
     docker exec -i -e PGPASSWORD="$DB_PASSWORD" "$DB_CONTAINER" psql -U "$DB_USER" -d postgres -v ON_ERROR_STOP=1 -qtA "$@"
   else
     PGPASSWORD="$DB_PASSWORD" psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d postgres -v ON_ERROR_STOP=1 -qtA "$@"
+  fi
+}
+
+# same as psql_admin but connected to the worktree database itself
+psql_db() {
+  if [ -n "$DB_CONTAINER" ]; then
+    docker exec -i -e PGPASSWORD="$DB_PASSWORD" "$DB_CONTAINER" psql -U "$DB_USER" -d "$db_name" -v ON_ERROR_STOP=1 -qtA "$@"
+  else
+    PGPASSWORD="$DB_PASSWORD" psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$db_name" -v ON_ERROR_STOP=1 -qtA "$@"
   fi
 }
 
@@ -109,6 +144,10 @@ if db_exists; then
 else
   log "creating database ${db_name}"
   psql_admin -c "CREATE DATABASE \"${db_name}\""
+  if [ -n "$DB_BOOTSTRAP_SQL" ] && [ -f "$DB_BOOTSTRAP_SQL" ]; then
+    log "bootstrapping ${db_name} from $DB_BOOTSTRAP_SQL"
+    psql_db -v dbname="$db_name" -f - < "$DB_BOOTSTRAP_SQL"
+  fi
 fi
 
 # --- deps, migrate, seed (all run with the new env so DATABASE_URL points at the worktree DB)
@@ -117,9 +156,9 @@ if [ -n "$INSTALL_CMD" ] && [ ! -d node_modules ]; then log "installing dependen
 if [ -n "$MIGRATE_CMD" ]; then log "migrating";  eval "$MIGRATE_CMD"; fi
 if [ -n "$SEED_CMD" ];    then log "seeding";    eval "$SEED_CMD";    fi
 
-# --- port sanity
-if command -v lsof >/dev/null && lsof -iTCP:"$port" -sTCP:LISTEN >/dev/null 2>&1; then
-  log "WARNING: something already listens on $port. Confirm it is yours before trusting http://localhost:$port"
+# --- port sanity (a re-used own_port may have been taken by an unrelated process since)
+if port_listening "$port"; then
+  log "WARNING: something already listens on $port. Confirm it is yours (lsof -i :$port) before trusting http://localhost:$port"
 fi
 
 cat <<EOF

@@ -75,6 +75,9 @@ wiping each other's data.
 
 - **One database per worktree.** A worktree's database is named
   `<db-prefix>_<branch-slug>` and is created by `scripts/worktree-env.sh`.
+  The slug is a readable prefix of the branch plus 8 hex characters of a
+  hash of the full branch name (`scripts/worktree-id.sh`), so two branches
+  can never share a database.
   Never point a worktree at the primary checkout's database.
 - **One port per worktree.** The port is derived from the branch name
   (`PORT_BASE + hash(slug) % PORT_RANGE`) and written to the worktree's env
