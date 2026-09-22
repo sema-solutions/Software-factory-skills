@@ -51,6 +51,7 @@ to pick up template changes. `npx skills update` refreshes the skills alone.
 | `scripts/check-contract.sh` | Diffs a repo's `AGENTS.md` shared sections against the template; run before any PR that touches the contract |
 | `templates/PULL_REQUEST_TEMPLATE.md` | PR body with a mandatory Proof section |
 | `templates/gitignore.factory` | Worktree and evidence paths to ignore |
+| `templates/scripts/doctor.sh` | `npm run doctor`: machine readiness with a fix command per miss; the worktree script runs it first |
 | `templates/scripts/worktree-env.sh` | Gives each worktree its own database and port |
 | `templates/scripts/db-guard.sh` | Refuses migrate/seed/reset against the wrong database |
 | `templates/github/pr-agent.yml` | Optional open-source reviewer workflow (PR-Agent) |
