@@ -85,8 +85,12 @@ wiping each other's data.
   `lsof -i :<port>`.
 - **Schema changes go through migrations only:** `db:generate` → committed
   migration file → `db:migrate` against **your worktree database**. Never
-  `db:push`, never hand-written DDL, never run schema experiments against a
-  database you did not create for this worktree.
+  `db:push`, never ad-hoc DDL typed at a database, never run schema
+  experiments against a database you did not create for this worktree.
+  Statements the generator cannot emit (row-level security policies,
+  grants) are hand-appended to the *generated* migration file with a
+  comment; say so here if that is your repo's practice, because the
+  reviewer enforces these words literally.
 - **Never stop, recreate, or wipe the shared database container or its
   volume** (`db:down`, `docker compose down`, `docker volume rm`). Other
   agents are using it.
