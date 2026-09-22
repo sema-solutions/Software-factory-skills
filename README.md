@@ -48,6 +48,7 @@ to pick up template changes. `npx skills update` refreshes the skills alone.
 | `AGENTS.template.md` | The contract: four beats, multi-agent rules, shared-resource (database/port) rules, Pilotship house rules, a repo-specific section to fill |
 | `CLAUDE.template.md` | Thin Claude Code pointer to AGENTS.md |
 | `factory-init.sh` | Idempotent installer described above |
+| `scripts/check-contract.sh` | Diffs a repo's `AGENTS.md` shared sections against the template; run before any PR that touches the contract |
 | `templates/PULL_REQUEST_TEMPLATE.md` | PR body with a mandatory Proof section |
 | `templates/gitignore.factory` | Worktree and evidence paths to ignore |
 | `templates/scripts/worktree-env.sh` | Gives each worktree its own database and port |
