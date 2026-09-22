@@ -60,7 +60,7 @@ log "target repo: $repo_root"
 # that already carries the current version is left alone silently (it was
 # merged or customized on purpose). One that carries an older version, or
 # none, gets a <name>.factory.<ext> copy beside it to merge by hand.
-TEMPLATE_VERSION="$(grep -hoE 'factory-template-version: [0-9.]+' "$factory_dir/AGENTS.template.md" | head -1 | awk '{print $2}')"
+TEMPLATE_VERSION="$( { grep -hoE 'factory-template-version: [0-9.]+' "$factory_dir/AGENTS.template.md" || true; } | head -1 | awk '{print $2}')"
 [ -n "$TEMPLATE_VERSION" ] || fail "AGENTS.template.md has no factory-template-version marker"
 
 place() { # place <template-path> <dest-path>
@@ -71,7 +71,8 @@ place() { # place <template-path> <dest-path>
     log "created $dest"
     return
   fi
-  have="$(grep -hoE 'factory-template-version: [0-9.]+' "$dest" 2>/dev/null | head -1 | awk '{print $2}')"
+  # `|| true`: an unmarked file must read as "no version", not abort under pipefail
+  have="$( { grep -hoE 'factory-template-version: [0-9.]+' "$dest" 2>/dev/null || true; } | head -1 | awk '{print $2}')"
   if [ "$have" = "$TEMPLATE_VERSION" ]; then
     skip "$dest is on template v$TEMPLATE_VERSION; left alone"
     return
