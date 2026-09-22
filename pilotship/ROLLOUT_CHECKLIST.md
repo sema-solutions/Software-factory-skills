@@ -21,6 +21,13 @@ per repo once the pilot has been dialed in.
 - [ ] `.github/PULL_REQUEST_TEMPLATE.md` in place with the Proof section
 - [ ] Any `*.factory.*` leftovers merged and deleted
 
+## Machine readiness
+
+- [ ] `scripts/doctor.sh` settings block filled (Node major, DB_CONTAINER if the repo has a local database, env file)
+- [ ] `npm run doctor` (or the task runner's equivalent) wired; `AGENTS.md` → Setup and `CONTRIBUTING.md` point at it
+- [ ] Doctor run on a machine that has never run this repo: every ✗ has a fix command that works
+- [ ] Windows developers on the repo use WSL2 (the doctor refuses a native Windows shell); no package.json script relies on shell syntax that cmd.exe cannot expand (e.g. `${PORT:-3000}`; wrap it in a small node script instead)
+
 ## Isolation (repos with a local database)
 
 - [ ] `scripts/worktree-env.sh` settings block filled (DB_PREFIX, DB_CONTAINER, user/password, port base); `scripts/worktree-id.sh` copied alongside (both scripts source it)

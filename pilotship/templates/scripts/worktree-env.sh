@@ -37,6 +37,13 @@ log()  { printf '\033[1;34m[worktree-env]\033[0m %s\n' "$*"; }
 fail() { printf '\033[1;31m[worktree-env] %s\033[0m\n' "$*" >&2; exit 1; }
 
 command -v git >/dev/null || fail "git not found"
+# Machine readiness first: on a fresh machine this stops with the exact fix
+# commands instead of a raw docker or psql error further down. Not for
+# --drop: cleanup needs only git and the database, and must not be held
+# hostage by an expired gh login or a missing screenshot tool.
+if [ "${1:-}" != "--drop" ] && [ -f "$(dirname "$0")/doctor.sh" ]; then
+  bash "$(dirname "$0")/doctor.sh" --for-worktree || fail "this machine is not ready for the factory yet (see the ✗ lines above; npm run doctor for the full report)"
+fi
 git rev-parse --is-inside-work-tree >/dev/null 2>&1 || fail "not inside a git checkout"
 
 repo_root="$(git rev-parse --show-toplevel)"

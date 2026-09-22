@@ -17,7 +17,8 @@
 #     2. appends the factory block to .gitignore
 #     3. drops AGENTS.md / CLAUDE.md templates in (as *.factory.md when a file already exists)
 #     4. drops .github/PULL_REQUEST_TEMPLATE.md in (same rule)
-#     5. copies scripts/worktree-env.sh + scripts/db-guard.sh when the repo runs a local database
+#     5. copies scripts/doctor.sh (machine readiness, every repo) and, when the
+#        repo runs a local database, scripts/worktree-env.sh + scripts/db-guard.sh
 #     6. reports which tools are missing on this machine
 # It never overwrites an existing file. Merging a template into an existing
 # AGENTS.md is a human job; the script prints the diff command.
@@ -110,6 +111,11 @@ place "$factory_dir/CLAUDE.template.md" "CLAUDE.md"
 
 # 4. PR template
 place "$tpl/PULL_REQUEST_TEMPLATE.md" ".github/PULL_REQUEST_TEMPLATE.md"
+
+# 5a. machine readiness (every repo; the db checks inside it switch on when DB_CONTAINER is set)
+place "$tpl/scripts/doctor.sh" "scripts/doctor.sh"
+[ "$DRY" = 1 ] || chmod +x scripts/doctor.sh 2>/dev/null || true
+log "doctor placed. Fill its settings block, add \"doctor\": \"bash scripts/doctor.sh\" to package.json (or the repo's task runner), and point AGENTS.md → Setup and CONTRIBUTING at it."
 
 # 5. db isolation scripts
 if [ "$DB_SCRIPTS" = "auto" ]; then

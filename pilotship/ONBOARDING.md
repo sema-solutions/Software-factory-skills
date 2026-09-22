@@ -8,6 +8,22 @@ interchangeable. The workflow is not.
 This doc gets a developer from zero to their first factory PR in about an
 hour.
 
+## 0. Which machines
+
+- **macOS** and **Linux**: everything runs natively.
+- **Windows**: run the factory inside **WSL2** (Ubuntu). The scripts are Bash
+  plus Unix tools, and WSL2 is Linux, so nothing needs translating. Do the
+  whole setup below *inside* the distro: Node, git, `gh`, the repo clone,
+  and Docker Desktop with **WSL integration** switched on for that distro.
+  Claude Code, Cursor and Codex all run there. A native Windows shell (Git
+  Bash, PowerShell, cmd) is not supported: npm runs scripts through cmd.exe,
+  the Claude skill links are git symlinks, and `lsof` does not exist; the
+  doctor refuses it and points here.
+
+  ```powershell
+  wsl --install                # once, then reboot; opens Ubuntu
+  ```
+
 ## 1. One-time machine setup (15 minutes)
 
 ```bash
@@ -24,6 +40,16 @@ brew install ffmpeg
 Node: use the version the repo pins (check `.nvmrc`, `engines`, or CI). Most
 Pilotship repos pin Node 22.
 
+Then, in any factory-enabled repo, run the doctor. It checks all of the above
+plus Docker, the database container, the env file and the skills, and prints
+the exact command for each miss. The worktree script runs the same checks
+before it touches anything, so a fresh machine stops with a checklist instead
+of a stack trace.
+
+```bash
+npm run doctor
+```
+
 Review bot access: ask Seth to add you to the Greptile org (see
 `REVIEW_BOTS.md`). One seat per developer, all repos.
 
@@ -36,7 +62,8 @@ Review bot access: ask Seth to add you to the Greptile org (see
 | `.agents/skills/*` | The seven factory skills (canonical copies). `.claude/skills/*` are symlinks to them. |
 | `skills-lock.json` | Pins skill versions. `npx skills update` bumps them. |
 | `.github/PULL_REQUEST_TEMPLATE.md` | PR body with a mandatory Proof section. |
-| `scripts/worktree-env.sh` | Gives a worktree its own database and port. Run first in every new worktree. |
+| `scripts/doctor.sh` | `npm run doctor`: is this machine ready? Every miss comes with its fix command. |
+| `scripts/worktree-env.sh` | Gives a worktree its own database and port. Run first in every new worktree (it runs the doctor first). |
 | `scripts/db-guard.sh` | Refuses migrate/seed/reset against the wrong database. |
 | `.artifacts/` | Evidence captured while proving. Gitignored, uploaded, never committed. |
 
