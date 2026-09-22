@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# factory-template-version: 1.0  (keep: factory-init.sh compares it on re-runs)
 # worktree-env.sh — give this git worktree its own database and dev-server port.
 #
 # Run ONCE in a fresh worktree, before installing deps or starting anything:

@@ -1,3 +1,4 @@
+<!-- factory-template-version: 1.0 -->
 ## Why
 
 <!-- What problem does this solve? Why now? Link the issue or task. -->

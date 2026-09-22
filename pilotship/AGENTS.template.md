@@ -4,10 +4,11 @@ Universal contract for any agent, human or AI, working in this repo. It applies
 in every harness (Claude Code, Cursor, Codex CLI, anything else that reads
 `AGENTS.md`) and with every model. Read it first.
 
-<!-- pilotship-software-factory: template v0.1 (2026-09-21).
-     Keep "The four beats", "Multi-agent rules" and "Pilotship house rules"
-     intact so every repo behaves the same. Fill in "Repo-specific" at the
-     bottom. Sync ritual: see the factory repo README. -->
+<!-- factory-template-version: 1.0 (2026-09-22). Keep this line: factory-init.sh
+     reads it to know whether this file needs a re-merge when the template
+     changes. Keep "The four beats", "Multi-agent rules" and "Pilotship house
+     rules" intact so every repo behaves the same. Fill in "Repo-specific" at
+     the bottom. Sync ritual: see the factory repo README. -->
 
 ## The four beats
 
@@ -28,13 +29,25 @@ installed under `.agents/skills/` (symlinked into `.claude/skills/`).
    runtime evidence. Capture the **before** state while reproducing the issue,
    prior to fixing it, and the **after** once the change works. Baseline
    evidence in Pilotship repos is screenshots plus measured numbers; annotated
-   video is welcome but optional.
+   video is welcome but optional. A surface you cannot drive locally (a page
+   behind a sign-in that has no local path) is marked **UNTESTED** with the
+   reason and a named reviewer step, never described as verified; a server
+   component still gets render-to-markup evidence for each of its states
+   (pattern 5 in the factory's `PATTERNS.md`).
 4. **Ship — `before-and-after`, then `greploop`.** Open the PR from
    `.github/PULL_REQUEST_TEMPLATE.md` with proof embedded: a Before | After
    table whenever the change has a visible surface, measured numbers or
    output pairs when it doesn't. Then run `greploop` (or `greploop-apps` when
    the PR exceeds the file-count limit) until the reviewer reports **5/5 with
-   zero unresolved comments**. Finish by presenting the PR URL. A human merges.
+   zero unresolved comments** on the **current head commit**. After every
+   push, wait about a minute before requesting the next review, and confirm
+   the summary's "last reviewed commit" is your head; a review of the
+   previous commit does not count. Finish by presenting the PR URL. A human
+   merges.
+
+Before the Build beat, read the factory's `pilotship/PATTERNS.md` (in the
+factory repo): six house patterns the review loop enforces, each of which
+cost a round the first time.
 
 Proof rules for Pilotship repos:
 

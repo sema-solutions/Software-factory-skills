@@ -40,6 +40,9 @@ Review bot access: ask Seth to add you to the Greptile org (see
 | `scripts/db-guard.sh` | Refuses migrate/seed/reset against the wrong database. |
 | `.artifacts/` | Evidence captured while proving. Gitignored, uploaded, never committed. |
 
+Before your first Build beat, read `PATTERNS.md` in this folder: six house
+patterns the review loop enforces. Each cost a round the first time.
+
 ## 3. Your first task, beat by beat
 
 Tell your agent what to build. The rest is what should happen; if a beat

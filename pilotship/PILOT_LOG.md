@@ -66,15 +66,12 @@ Also learned: the primary checkout on this Mac had no `.env.local`, so the scrip
 | 2026-09-21 | `pilotship/*` | Initial Pilotship layer | Phase 0 |
 | 2026-09-21 | `templates/scripts/worktree-env.sh` | `DB_BOOTSTRAP_SQL` hook + `psql_db` helper | Finding 1 and 2 above |
 
-## Open questions to settle before v1.0
+## Open questions, settled for v1.0 (2026-09-22)
 
-- [ ] greploop iteration cap: keep 10 or lower it?
-- [x] Greptile auto-review on PR open (ON), retrigger on push OFF; greploop re-triggers with `@greptile review` (verified 2026-09-21, ~2 min per loop, 1 credit each; #207 took 3 loops)
-- [ ] Which PR types are exempt from proof? (docs-only, dependency bumps, CI config so far)
-- [ ] Does Cursor auto-load the skills, or does it need an explicit mention? (not installed on Seth's Mac; test on Phil's)
-- [ ] Does Codex CLI auto-load the skills, or does it need an explicit mention? (same)
-- [x] Does Claude Code auto-load them? Yes (rep 1)
-- [x] greploop: wait ~60 s before re-requesting review after a push (rep 1 lesson 3; confirmed rep 2)
-- [ ] CLI: audit every command that parses a money/number flag for the NaN → null → clear bug (rep 2 lesson 3)
-- [ ] Dev-only session bypass so the web surface can be proven locally (rep 1 lesson 2)
-- [ ] PR-Agent side-by-side: keep, drop, or make it the default for Phase 3?
+- **greploop iteration cap:** keep 10. The pilot's worst PR took 6 rounds.
+- **Greptile triggers:** auto-review on PR open ON; retrigger on push OFF; greploop re-requests with `@greptile review` after a 60 s wait and checks the reviewed commit (skill edited).
+- **Proof exemptions:** docs-only, dependency bumps, CI config. Everything else carries proof; a surface that cannot be driven locally is marked UNTESTED with a named reviewer step.
+- **Claude Code auto-loads the skills:** yes. **Cursor / Codex:** deferred by decision (not installed on Seth's Mac; test on Phil's machine when he joins).
+- **PR-Agent side-by-side:** dropped for now. Greptile's findings were all real across ten rounds; revisit only if per-seat cost bites when a second developer authors PRs.
+- **Dev-only session bypass** so the web surface can be proven locally: product follow-up in pilotship-web, not factory work.
+- **CLI number-flag audit** for the NaN → null → clear bug: product follow-up in pilotship-web.

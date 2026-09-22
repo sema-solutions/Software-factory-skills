@@ -22,8 +22,10 @@ per repo once the pilot has been dialed in.
 
 ## Isolation (repos with a local database)
 
-- [ ] `scripts/worktree-env.sh` settings block filled (DB_PREFIX, DB_CONTAINER, user/password, port base)
+- [ ] `scripts/worktree-env.sh` settings block filled (DB_PREFIX, DB_CONTAINER, user/password, port base); `scripts/worktree-id.sh` copied alongside (both scripts source it)
 - [ ] `scripts/db-guard.sh` DB_PREFIX matches
+- [ ] Compose file has a fixed `name:` (so every worktree targets one container) and an overridable host port (`${PGPORT_HOST:-5432}`) for machines where 5432 is taken
+- [ ] If migrations cannot run from scratch with the plain generator (role switches, extensions), a local runner + bootstrap SQL like pilotship-web's `scripts/migrate-local.ts` / `db-bootstrap-local.sql`
 - [ ] `db-guard` wired in front of migrate, seed, reset in `package.json` (or the equivalent task runner)
 - [ ] Dev script honors `$PORT`
 - [ ] `db:reset` no longer stops or recreates the shared container; it drops and recreates only the current database
@@ -44,5 +46,5 @@ per repo once the pilot has been dialed in.
 
 ## Team
 
-- [ ] Every developer on this repo has done the machine setup in `ONBOARDING.md`
+- [ ] Every developer on this repo has done the machine setup in `ONBOARDING.md` and read `PATTERNS.md`
 - [ ] Date announced after which every PR carries proof and a 5/5 or an explicit waiver
