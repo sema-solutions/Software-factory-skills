@@ -32,7 +32,8 @@ Tested on commit `<sha>` in `<environment>`.
 
 ## Review loop
 
-<!-- Filled by greploop. -->
+<!-- Filled by greploop. Repos without a review bot write an explicit waiver instead,
+     e.g. "waived: no bot on this repo" — the merge log treats anything else as skipped. -->
 Reviewer: <Greptile / PR-Agent> · Iterations: <n> · Final: <5/5, 0 unresolved>
 
 ## Risks and follow-ups

@@ -19,6 +19,7 @@ lives under [`pilotship/`](pilotship/).
 | Rolling the factory out to a repo | [`pilotship/ROLLOUT_CHECKLIST.md`](pilotship/ROLLOUT_CHECKLIST.md), then run `pilotship/factory-init.sh` |
 | Wondering why Greptile, and how to swap it | [`pilotship/REVIEW_BOTS.md`](pilotship/REVIEW_BOTS.md) |
 | Logging what broke during the pilot | [`pilotship/PILOT_LOG.md`](pilotship/PILOT_LOG.md) |
+| Seeing what merged here and whether it went through the factory | [`pilotship/MERGE_LOG.md`](pilotship/MERGE_LOG.md), written by the **Merge log** workflow (one Actions run per merge; red when a PR skipped the factory) |
 
 ### Install into a repo
 

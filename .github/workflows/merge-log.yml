@@ -1,0 +1,52 @@
+# Merge log: one Actions run per merged PR, a row in pilotship/MERGE_LOG.md,
+# and a red run when the PR skipped the factory (no Proof section, or no 5/5
+# review result / waiver in the Review loop section).
+name: Merge log
+
+on:
+  pull_request:
+    types: [closed]
+
+permissions:
+  contents: write
+  pull-requests: read
+
+concurrency:
+  group: merge-log
+  cancel-in-progress: false
+
+jobs:
+  log:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.base.ref }}
+
+      - name: Write the row and the summary
+        id: log
+        env:
+          EVENT_PATH: ${{ github.event_path }}
+        run: |
+          jq '.pull_request' "$EVENT_PATH" > /tmp/pr.json
+          set +e
+          bash pilotship/scripts/merge-log.sh /tmp/pr.json pilotship/MERGE_LOG.md
+          echo "verdict_exit=$?" >> "$GITHUB_OUTPUT"
+
+      - name: Commit the row
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add pilotship/MERGE_LOG.md
+          git diff --cached --quiet && { echo "row already present"; exit 0; }
+          git commit -m "merge-log: #${{ github.event.pull_request.number }} ${{ github.event.pull_request.title }}"
+          git push origin HEAD:${{ github.event.pull_request.base.ref }}
+
+      - name: Factory verdict
+        run: |
+          if [ "${{ steps.log.outputs.verdict_exit }}" != "0" ]; then
+            echo "::error::PR #${{ github.event.pull_request.number }} skipped the factory (see the summary). The row was still logged."
+            exit 1
+          fi
+          echo "factory ok"
