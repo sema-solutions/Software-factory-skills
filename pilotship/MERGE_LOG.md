@@ -13,3 +13,4 @@ for that merge is red so the gap is visible.
 | 2026-09-22 | [#4](https://github.com/sema-solutions/Software-factory-skills/pull/4) | Pilot log: rep 1 (append_project_event) and lessons | sema-solutions | proof: yes | review: waived: no bot on this repo. | **ok** |
 | 2026-09-22 | [#5](https://github.com/sema-solutions/Software-factory-skills/pull/5) | Merge log: link rows to the web URL | sema-solutions | proof: yes | review: waived: no bot on this repo. | **ok** |
 | 2026-09-22 | [#6](https://github.com/sema-solutions/Software-factory-skills/pull/6) | Pilot log: rep 3 (project_contacts) and lessons; template migration wording | sema-solutions | proof: yes | review: waived: no bot on this repo. | **ok** |
+| 2026-09-22 | [#7](https://github.com/sema-solutions/Software-factory-skills/pull/7) | v1.0: house patterns, pilot lessons folded in, versioned installer | sema-solutions | proof: yes | review: waived: no bot on this repo. | **ok** |
