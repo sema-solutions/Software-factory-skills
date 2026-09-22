@@ -18,7 +18,8 @@ number=$(jq -r '.number' "$pr_json")
 title=$(jq -r '.title' "$pr_json")
 author=$(jq -r '.author.login // .user.login // "?"' "$pr_json")
 merged_at=$(jq -r '.mergedAt // .merged_at // ""' "$pr_json" | cut -c1-10)
-url=$(jq -r '.url // .html_url' "$pr_json")
+# The Actions event payload carries both url (API) and html_url (web); gh pr view --json url gives the web one.
+url=$(jq -r '.html_url // .url' "$pr_json")
 body=$(jq -r '.body // ""' "$pr_json")
 
 section() { # section <heading-regex> -> text until the next "## "
