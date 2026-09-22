@@ -6,6 +6,9 @@ beats, **isolate → build → prove → ship**, each backed by a markdown skill
 this repo. It works the same in Claude Code, Cursor, and Codex CLI, with any
 model.
 
+**v1.0** (2026-09-22): piloted on pilotship-web over three real features and
+ten review rounds; see [`pilotship/PILOT_LOG.md`](pilotship/PILOT_LOG.md).
+
 Forked from [michaelshimeles/skills](https://github.com/michaelshimeles/skills)
 (the skills from the "software factory" walkthrough). Upstream skills stay
 vendored and unmodified under their own folders; everything Pilotship-specific
@@ -15,7 +18,8 @@ lives under [`pilotship/`](pilotship/).
 
 | If you are... | Read |
 |---|---|
-| A developer joining a factory-enabled repo | [`pilotship/ONBOARDING.md`](pilotship/ONBOARDING.md) |
+| A developer joining a factory-enabled repo | [`pilotship/ONBOARDING.md`](pilotship/ONBOARDING.md), then [`pilotship/PATTERNS.md`](pilotship/PATTERNS.md) |
+| About to build something | [`pilotship/PATTERNS.md`](pilotship/PATTERNS.md): six house patterns the review loop enforces |
 | Rolling the factory out to a repo | [`pilotship/ROLLOUT_CHECKLIST.md`](pilotship/ROLLOUT_CHECKLIST.md), then run `pilotship/factory-init.sh` |
 | Wondering why Greptile, and how to swap it | [`pilotship/REVIEW_BOTS.md`](pilotship/REVIEW_BOTS.md) |
 | Logging what broke during the pilot | [`pilotship/PILOT_LOG.md`](pilotship/PILOT_LOG.md) |
@@ -62,9 +66,10 @@ Upstream folders (`new-feature/`, `code-structure/`, `evidence-driven-testing/`,
 `before-and-after/`, `greploop/`, `greploop-apps/`, `unslop/`, `AGENTS.md`,
 `tests/`) are left as upstream ships them so merges stay clean, with one
 deliberate exception: `before-and-after/scripts/upload-and-copy.sh` defaults
-`IMAGE_ADAPTER` to `gist` instead of the public 0x0.st host, and
+`IMAGE_ADAPTER` to `gist` instead of the public 0x0.st host,
 `before-and-after/scripts/adapters/gist.sh` creates secret gists instead of
-public ones. Re-check both after every upstream merge. If a skill
+public ones, and `greploop/SKILL.md` waits 60 s (not 5) after a push before
+requesting a review. Re-check all three after every upstream merge. If a skill
 needs Pilotship behavior, add a variant under `pilotship/skills/<name>/` rather
 than editing the vendored one.
 

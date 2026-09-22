@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# factory-template-version: 1.0  (keep: factory-init.sh compares it on re-runs)
 # worktree-id.sh — ONE definition of a worktree's identity, sourced by
 # scripts/worktree-env.sh and scripts/db-guard.sh so they can never disagree.
 #

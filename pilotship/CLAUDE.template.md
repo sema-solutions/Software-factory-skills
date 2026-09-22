@@ -1,5 +1,7 @@
 # CLAUDE.md
 
+<!-- factory-template-version: 1.0 -->
+
 Claude Code specific notes. **The universal contract is [`AGENTS.md`](./AGENTS.md).**
 Read that first; everything in it applies here. This file only covers what
 differs in Claude Code.

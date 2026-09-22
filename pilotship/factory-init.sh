@@ -56,22 +56,34 @@ cd "$repo_root"
 log "target repo: $repo_root"
 [ "$DRY" = 1 ] && log "dry run: nothing will be written"
 
-# Copy a template unless the destination exists; then write <name>.factory.<ext> beside it.
+# Every template carries a line "factory-template-version: X.Y". A repo file
+# that already carries the current version is left alone silently (it was
+# merged or customized on purpose). One that carries an older version, or
+# none, gets a <name>.factory.<ext> copy beside it to merge by hand.
+TEMPLATE_VERSION="$( { grep -hoE 'factory-template-version: [0-9.]+' "$factory_dir/AGENTS.template.md" || true; } | head -1 | awk '{print $2}')"
+[ -n "$TEMPLATE_VERSION" ] || fail "AGENTS.template.md has no factory-template-version marker"
+
 place() { # place <template-path> <dest-path>
-  local src="$1" dest="$2" alt
+  local src="$1" dest="$2" alt have
   if [ ! -e "$dest" ]; then
     run mkdir -p "$(dirname "$dest")"
     run cp "$src" "$dest"
     log "created $dest"
+    return
+  fi
+  # `|| true`: an unmarked file must read as "no version", not abort under pipefail
+  have="$( { grep -hoE 'factory-template-version: [0-9.]+' "$dest" 2>/dev/null || true; } | head -1 | awk '{print $2}')"
+  if [ "$have" = "$TEMPLATE_VERSION" ]; then
+    skip "$dest is on template v$TEMPLATE_VERSION; left alone"
+    return
+  fi
+  alt="${dest%.*}.factory.${dest##*.}"
+  [ "$dest" = "${dest%.*}" ] && alt="$dest.factory"
+  if [ -e "$alt" ] && cmp -s "$src" "$alt"; then
+    skip "$dest is on template v${have:-none}; $alt (v$TEMPLATE_VERSION) already written, merge by hand"
   else
-    alt="${dest%.*}.factory.${dest##*.}"
-    [ "$dest" = "${dest%.*}" ] && alt="$dest.factory"
-    if [ -e "$alt" ] && cmp -s "$src" "$alt"; then
-      skip "$dest exists; $alt already up to date"
-    else
-      run cp "$src" "$alt"
-      skip "$dest exists; wrote $alt. Merge by hand: diff $alt $dest"
-    fi
+    run cp "$src" "$alt"
+    skip "$dest is on template v${have:-none}; wrote $alt (v$TEMPLATE_VERSION). Merge by hand: diff $alt $dest, then keep the version line"
   fi
 }
 
