@@ -1,4 +1,4 @@
-<!-- factory-template-version: 1.0 -->
+<!-- factory-template-version: 1.1 -->
 ## Why
 
 <!-- What problem does this solve? Why now? Link the issue or task. -->

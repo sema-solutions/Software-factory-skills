@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# factory-template-version: 1.0  (keep: factory-init.sh compares it on re-runs)
+# factory-template-version: 1.1  (keep: factory-init.sh compares it on re-runs)
 # doctor.sh — is this machine ready to run the software factory on this repo?
 #
 #   npm run doctor            full report, exit 1 if anything required is missing

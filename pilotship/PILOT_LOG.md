@@ -65,6 +65,7 @@ Also learned: the primary checkout on this Mac had no `.env.local`, so the scrip
 | 2026-09-21 | `before-and-after/scripts/upload-and-copy.sh` | default adapter 0x0st → gist | Greptile finding on pilotship-web #207: the vendored default contradicted AGENTS.md |
 | 2026-09-21 | `pilotship/*` | Initial Pilotship layer | Phase 0 |
 | 2026-09-21 | `templates/scripts/worktree-env.sh` | `DB_BOOTSTRAP_SQL` hook + `psql_db` helper | Finding 1 and 2 above |
+| 2026-09-23 | `AGENTS.template.md`, `templates/scripts/factory-gate.sh`, `templates/claude-settings.hooks.json`, `factory-init.sh` (5b) | "Start here, every session" section + Claude Code hooks that print it and refuse writes on `main` in the primary checkout; templates to v1.1 | pilotship-web #219 skipped the factory from a session that predated the contract (no worktree, 4/5 merge with an open thread); pilotship-web #222 |
 
 ## Open questions, settled for v1.0 (2026-09-22)
 

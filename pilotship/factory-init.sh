@@ -117,6 +117,24 @@ place "$tpl/scripts/doctor.sh" "scripts/doctor.sh"
 [ "$DRY" = 1 ] || chmod +x scripts/doctor.sh 2>/dev/null || true
 log "doctor placed. Fill its settings block, add \"doctor\": \"bash scripts/doctor.sh\" to package.json (or the repo's task runner), and point AGENTS.md → Setup and CONTRIBUTING at it."
 
+# 5b. the session gate (every repo): the hook script plus the Claude Code hooks block
+place "$tpl/scripts/factory-gate.sh" "scripts/factory-gate.sh"
+[ "$DRY" = 1 ] || chmod +x scripts/factory-gate.sh 2>/dev/null || true
+if [ ! -e .claude/settings.json ]; then
+  run mkdir -p .claude
+  if [ "$DRY" = 1 ]; then echo "  would: create .claude/settings.json with the factory hooks"; else python3 - "$tpl/claude-settings.hooks.json" > .claude/settings.json <<'PY'
+import json, sys
+d = json.load(open(sys.argv[1])); d.pop("_comment", None)
+print(json.dumps(d, indent=2))
+PY
+  fi
+  log "created .claude/settings.json with the factory hooks"
+elif grep -q 'factory-gate.sh' .claude/settings.json 2>/dev/null; then
+  skip ".claude/settings.json already wires factory-gate.sh"
+else
+  log "merge the hooks block from $tpl/claude-settings.hooks.json into .claude/settings.json (SessionStart + PreToolUse → scripts/factory-gate.sh)"
+fi
+
 # 5. db isolation scripts
 if [ "$DB_SCRIPTS" = "auto" ]; then
   DB_SCRIPTS="no"

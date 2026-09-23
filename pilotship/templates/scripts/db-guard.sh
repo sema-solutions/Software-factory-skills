@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# factory-template-version: 1.0  (keep: factory-init.sh compares it on re-runs)
+# factory-template-version: 1.1  (keep: factory-init.sh compares it on re-runs)
 # db-guard.sh — refuse to run a database command against the wrong database.
 #
 # Wire it in front of every command that migrates, seeds, or resets:
