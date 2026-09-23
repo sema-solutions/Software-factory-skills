@@ -1,0 +1,26 @@
+{
+  "_comment": "factory-template-version: 1.1. Merge the `hooks` block into the repo's .claude/settings.json (factory-init.sh creates the file with it when none exists). Both hooks run scripts/factory-gate.sh: SessionStart prints the Start-here checklist; PreToolUse refuses writes to the primary checkout while it sits on the default branch.",
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR\"/scripts/factory-gate.sh session"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit|NotebookEdit|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR\"/scripts/factory-gate.sh pre-tool"
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -4,11 +4,34 @@ Universal contract for any agent, human or AI, working in this repo. It applies
 in every harness (Claude Code, Cursor, Codex CLI, anything else that reads
 `AGENTS.md`) and with every model. Read it first.
 
-<!-- factory-template-version: 1.0 (2026-09-22). Keep this line: factory-init.sh
+<!-- factory-template-version: 1.1 (2026-09-23). Keep this line: factory-init.sh
      reads it to know whether this file needs a re-merge when the template
-     changes. Keep "The four beats", "Multi-agent rules" and "Pilotship house
-     rules" intact so every repo behaves the same. Fill in "Repo-specific" at
+     changes. Keep "Start here", "The four beats", "Multi-agent rules" and
+     "Pilotship house rules" intact so every repo behaves the same. Fill in "Repo-specific" at
      the bottom. Sync ritual: see the factory repo README. -->
+
+## Start here, every session
+
+Five steps, in order, before anything else. The harness hooks in
+`scripts/factory-gate.sh` print this list at session start and refuse edits
+and commits on the default branch in the primary checkout, so skipping step
+3 is not possible by accident.
+
+1. **Fresh machine or fresh clone.** Run the repo's doctor (`npm run doctor`
+   or `bash scripts/doctor.sh`) and follow its fix commands until it passes.
+2. **Fresh session.** You are reading the current contract now. A session
+   that started before this file changed does not know it. Start a new
+   session rather than carrying an old one over.
+3. **Every task starts with the `new-feature` skill.** It creates a worktree
+   and a branch off `origin/main`. Then run `bash scripts/worktree-env.sh`
+   inside it (if the repo has it). Never build on `main`.
+4. **Build, prove, ship.** Write the code, capture evidence, open the PR from
+   the template, then `greploop` until the reviewer reports 5/5 with zero
+   unresolved comments on the head commit.
+5. **A human merges.** Never below 5/5, never with an open thread. Present
+   the PR URL and stop.
+
+The four beats below are the long form of steps 3 and 4.
 
 ## The four beats
 

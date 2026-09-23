@@ -63,6 +63,7 @@ Review bot access: ask Seth to add you to the Greptile org (see
 | `skills-lock.json` | Pins skill versions. `npx skills update` bumps them. |
 | `.github/PULL_REQUEST_TEMPLATE.md` | PR body with a mandatory Proof section. |
 | `scripts/doctor.sh` | `npm run doctor`: is this machine ready? Every miss comes with its fix command. |
+| `scripts/factory-gate.sh` + `.claude/settings.json` hooks | The session gate. Prints the five "Start here" steps when a Claude Code session opens and refuses edits or commits on `main` in the primary checkout. |
 | `scripts/worktree-env.sh` | Gives a worktree its own database and port. Run first in every new worktree (it runs the doctor first). |
 | `scripts/db-guard.sh` | Refuses migrate/seed/reset against the wrong database. |
 | `.artifacts/` | Evidence captured while proving. Gitignored, uploaded, never committed. |
@@ -73,7 +74,10 @@ patterns the review loop enforces. Each cost a round the first time.
 ## 3. Your first task, beat by beat
 
 Tell your agent what to build. The rest is what should happen; if a beat
-gets skipped, say "use the factory" and it will pick the skills up.
+gets skipped, say "use the factory" and it will pick the skills up. In Claude
+Code the gate makes the first beat hard to skip: a session opened on `main`
+sees the five steps and cannot write to the primary checkout. Open a fresh
+session after the contract changes; an old session does not know it.
 
 **Isolate.** The agent creates a worktree and branch off `origin/main`
 (`feat/<name>-<suffix>`), then runs `scripts/worktree-env.sh`. That script
