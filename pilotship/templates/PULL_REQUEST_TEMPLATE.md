@@ -12,7 +12,7 @@
 
 <!-- Required. Pick one:
      - Visible change: a Before | After table (before-and-after --markdown,
-       uploaded via the gist adapter).
+       uploaded via the repo adapter to the `evidence` branch).
      - Non-visible change: measured numbers or output pairs (before → after).
      - Carve-out: "docs-only" / "dependency bump" / "CI config".
      State the exact commit and environment the evidence was captured on. -->

@@ -4,7 +4,7 @@ Universal contract for any agent, human or AI, working in this repo. It applies
 in every harness (Claude Code, Cursor, Codex CLI, anything else that reads
 `AGENTS.md`) and with every model. Read it first.
 
-<!-- factory-template-version: 1.1 (2026-09-23). Keep this line: factory-init.sh
+<!-- factory-template-version: 1.2 (2026-09-25). Keep this line: factory-init.sh
      reads it to know whether this file needs a re-merge when the template
      changes. Keep "Start here", "The four beats", "Multi-agent rules" and
      "Pilotship house rules" intact so every repo behaves the same. Fill in "Repo-specific" at
@@ -74,8 +74,10 @@ cost a round the first time.
 
 Proof rules for Pilotship repos:
 
-- Upload evidence through the gist adapter (`IMAGE_ADAPTER=gist`), never the
-  default public host. Portal screenshots can show client names.
+- Upload evidence through the repo adapter (`IMAGE_ADAPTER=repo`: an orphan
+  `evidence` branch in the same repo, one folder per PR branch), never the
+  default public host. Portal screenshots can show client names. Gists
+  cannot hold images.
 - Never capture real client or customer data. Use local seed data.
 - Evidence lives in `.artifacts/<task-name>/` (gitignored) and is uploaded,
   never committed.

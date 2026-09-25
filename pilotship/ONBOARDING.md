@@ -97,7 +97,10 @@ Before pushing it runs the repo's check gate (for example
 **Prove.** For a UI change: a before screenshot captured *before* the fix and
 an after screenshot once it works, turned into a table with
 `before-and-after before.png after.png --markdown` and uploaded through the
-gist adapter. For anything else: measured numbers or output pairs. Evidence
+repo adapter (an orphan `evidence` branch in the same repo; gists reject
+binaries, the public host is forbidden). Pages with a query string in the
+URL: capture with `agent-browser open <url>` + `agent-browser screenshot`,
+the CLI rejects them. For anything else: measured numbers or output pairs. Evidence
 always names the commit it was captured on.
 
 **Ship.** The agent opens the PR from the template with the proof embedded,

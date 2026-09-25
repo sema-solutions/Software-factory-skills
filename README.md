@@ -55,6 +55,7 @@ to pick up template changes. `npx skills update` refreshes the skills alone.
 | `templates/scripts/factory-gate.sh`, `templates/claude-settings.hooks.json` | The session gate: Claude Code hooks that print the five "Start here" steps at session start and refuse writes to the primary checkout on `main` |
 | `templates/scripts/worktree-env.sh` | Gives each worktree its own database and port |
 | `templates/scripts/db-guard.sh` | Refuses migrate/seed/reset against the wrong database |
+| `../before-and-after/scripts/adapters/repo.sh` | Evidence upload adapter: pushes screenshots to an orphan `evidence` branch of the repo under review (Contents API, working tree untouched); the default `IMAGE_ADAPTER` |
 | `templates/github/pr-agent.yml` | Optional open-source reviewer workflow (PR-Agent) |
 | `ONBOARDING.md`, `ROLLOUT_CHECKLIST.md`, `REVIEW_BOTS.md`, `PILOT_LOG.md` | Team docs |
 
@@ -69,10 +70,12 @@ Upstream folders (`new-feature/`, `code-structure/`, `evidence-driven-testing/`,
 `before-and-after/`, `greploop/`, `greploop-apps/`, `unslop/`, `AGENTS.md`,
 `tests/`) are left as upstream ships them so merges stay clean, with one
 deliberate exception: `before-and-after/scripts/upload-and-copy.sh` defaults
-`IMAGE_ADAPTER` to `gist` instead of the public 0x0.st host,
-`before-and-after/scripts/adapters/gist.sh` creates secret gists instead of
-public ones, and `greploop/SKILL.md` waits 60 s (not 5) after a push before
-requesting a review. Re-check all three after every upstream merge. If a skill
+`IMAGE_ADAPTER` to `repo` (a new adapter, `adapters/repo.sh`, that hosts
+images on an orphan `evidence` branch of the repo itself) instead of the
+public 0x0.st host, `before-and-after/scripts/adapters/gist.sh` creates secret
+gists instead of public ones (text only: gists reject binaries), and
+`greploop/SKILL.md` waits 60 s (not 5) after a push before requesting a
+review. Re-check all four after every upstream merge. If a skill
 needs Pilotship behavior, add a variant under `pilotship/skills/<name>/` rather
 than editing the vendored one.
 
