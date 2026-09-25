@@ -18,3 +18,4 @@ for that merge is red so the gap is visible.
 | 2026-09-22 | [#9](https://github.com/sema-solutions/Software-factory-skills/pull/9) | doctor: machine readiness with a fix command per miss | sema-solutions | proof: yes | review: waived: no bot on this repo. | **ok** |
 | 2026-09-23 | [#10](https://github.com/sema-solutions/Software-factory-skills/pull/10) | feat(pilotship): session gate, templates v1.1 | sema-solutions | proof: yes | review: none | **skipped** |
 | 2026-09-25 | [#11](https://github.com/sema-solutions/Software-factory-skills/pull/11) | docs: per-machine tool install and an agent's first session | sema-solutions | proof: yes | review: waived: no bot on this repo | **ok** |
+| 2026-09-25 | [#12](https://github.com/sema-solutions/Software-factory-skills/pull/12) | feat(evidence): repo adapter for screenshots; templates v1.2; rep 4 log | sema-solutions | proof: yes | review: waived: no bot on this repo | **ok** |
