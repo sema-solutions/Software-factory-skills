@@ -25,6 +25,19 @@ lives under [`pilotship/`](pilotship/).
 | Logging what broke during the pilot | [`pilotship/PILOT_LOG.md`](pilotship/PILOT_LOG.md) |
 | Seeing what merged here and whether it went through the factory | [`pilotship/MERGE_LOG.md`](pilotship/MERGE_LOG.md), written by the **Merge log** workflow (one Actions run per merge; red when a PR skipped the factory) |
 
+### Set up a machine (once per laptop, not per repo)
+
+```bash
+brew install gh && gh auth login                    # PRs, review loop (apt/dnf on Linux and WSL2)
+npm i -g @vercel/before-and-after agent-browser     # before/after screenshots for the Prove beat
+```
+
+These are global installs. The factory files you commit to a repo do not
+carry them, so every developer and every new machine does this once. Without
+the second line, UI changes ship marked UNTESTED because no screenshot can
+be captured. Windows: run all of this inside WSL2 (see
+[`pilotship/ONBOARDING.md`](pilotship/ONBOARDING.md), section 0).
+
 ### Install into a repo
 
 ```bash
@@ -40,6 +53,24 @@ drops in the `AGENTS.md`, `CLAUDE.md`, PR template, and the two database
 isolation scripts. It never overwrites an existing file: where one exists it
 writes a `*.factory.*` copy beside it for you to merge. Run it again any time
 to pick up template changes. `npx skills update` refreshes the skills alone.
+
+### First session of an agent in a factory repo
+
+Whatever the harness, the agent's first move in a repo it has not seen is
+the doctor:
+
+```bash
+npm run doctor        # or: bash scripts/doctor.sh
+```
+
+It checks Node, git, `gh` and its login, Docker and the database container,
+the env file, the skills, and the screenshot tooling above, and prints the
+exact fix command next to every miss. `AGENTS.md` step 1 tells the agent to
+run it and follow the fix lines until it passes, and `scripts/worktree-env.sh`
+runs it again before creating a worktree, so a missing tool stops the session
+with a checklist rather than a half-built task. Steps 2 to 5 of the contract
+(fresh session, worktree via `new-feature`, build/prove/ship, human merges)
+follow from there.
 
 ### What `pilotship/` contains
 
