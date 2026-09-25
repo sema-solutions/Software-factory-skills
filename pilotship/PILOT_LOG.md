@@ -18,7 +18,16 @@ Pilot repo: `Pilotship-io/pilotship-web` · Started: 2026-09-21
 
 Time columns are wall-clock minutes for the beat, roughly. "What broke"
 means anything a human had to step in for: a skipped beat, a guard that
+| 2026-09-25 | pilotship-web #227 dev-only session (feat/dev-session-bypass-a7c2), closes #215 | Claude Code | Fable 5.1 | 3 | ~40 | ~25 | 3 loops, 3/5 → 5/5 → 5/5 (~30 min) | First real portal screenshots. Gist adapter cannot hold a PNG (never could); Greptile: bypass reachable from the LAN (next dev binds all interfaces), env script advertised a URL it could not honor, server-only import (which knip then rejected in a route). Next injects x-forwarded-* itself, so "forwarded = proxy" is wrong. | repo adapter + docs (fork PR), pilotship-web #227 |
 fired wrongly, a tool that was missing, a screenshot that leaked data.
+
+## Rep 4 lessons (pilotship-web #227, 2026-09-25)
+
+1. **Gists cannot hold images.** `gh gist create x.png` answers "binary file not supported", so the gist adapter (ours and upstream's) only ever worked for text; three reps never noticed because none captured a screenshot. Replaced by `adapters/repo.sh`: an orphan `evidence` branch in the repo under review, written through the Contents API, referenced as `github.com/<repo>/blob/evidence/<branch>/<file>?raw=true`, which a private repo's PR page renders for anyone who can see the PR (verified in the browser on #227). Creating that branch is a shared-resource change; the first run in each repo needs a human's OK.
+2. **A dev-only bypass needs a network boundary, not just env guards.** `next dev` listens on every interface; the reviewer's P1 was right. Loopback `Host` check per request plus `dev.mjs` binding 127.0.0.1. And Next sets `x-forwarded-host/for/proto` on every request itself, so a forwarded header cannot mean "proxy in front"; the first fix broke sign-in on localhost and only the live proof caught it. Re-run the proof after every review fix, not just the tests.
+3. **Reviewer suggestions can contradict the repo's own gates.** Greptile asked for `import 'server-only'` in a route handler; `knip --strict` then failed CI (unlisted dependency for app-router entries) and 0 of the other 147 routes carry it. Check a suggestion against the repo's conventions before accepting it, and run the full check gate after each round, not only the touched tests.
+4. **The `before-and-after` CLI rejects a URL with a query string** (ERR_NAME_NOT_RESOLVED). `agent-browser open <url>` + `screenshot` works; the sign-in URL for the portal is exactly that shape.
+5. **Portal proof is now one URL.** `/api/auth/dev-session?as=seed-seth&next=<page>` signs in and lands; UNTESTED on a web surface is no longer an accepted reason.
 
 ## Rep 3 lessons (pilotship-web #212, 2026-09-22)
 
@@ -60,6 +69,7 @@ Also learned: the primary checkout on this Mac had no `.env.local`, so the scrip
 | Date | File | Change | Why |
 |---|---|---|---|
 | 2026-09-21 | `templates/scripts/worktree-id.sh` (new), `worktree-env.sh`, `db-guard.sh`, `factory-init.sh` | collision-resistant worktree id (prefix + sha256 hash) shared by both scripts | Greptile finding on pilotship-web #207: truncated slugs could collide and defeat isolation |
+| 2026-09-25 | `before-and-after/scripts/adapters/repo.sh` (new), `upload-and-copy.sh`, `AGENTS.template.md` (v1.2), PR template, ONBOARDING, README | default adapter gist → repo (orphan `evidence` branch in the repo) | gists reject binaries; found on the first real screenshot (pilotship-web #227) |
 | 2026-09-21 | `before-and-after/scripts/adapters/gist.sh` | secret gists instead of public | privacy of portal screenshots (Greptile round 2 on #207) |
 | 2026-09-21 | `templates/scripts/worktree-env.sh` | collision-aware port allocation (skips sibling-claimed and listening ports, keeps own, fails when full) | Greptile round 2 on #207: hash % range could hand two worktrees the same port |
 | 2026-09-21 | `before-and-after/scripts/upload-and-copy.sh` | default adapter 0x0st → gist | Greptile finding on pilotship-web #207: the vendored default contradicted AGENTS.md |

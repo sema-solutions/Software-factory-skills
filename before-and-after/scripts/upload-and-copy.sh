@@ -6,8 +6,8 @@
 #   --markdown    Generate PR markdown table and copy to clipboard
 #
 # Environment:
-#   IMAGE_ADAPTER    Storage adapter to use (default: gist; Pilotship edit, upstream is 0x0st)
-#                    Available: 0x0st, gist, blob
+#   IMAGE_ADAPTER    Storage adapter to use (default: repo; Pilotship edit, upstream is 0x0st)
+#                    Available: 0x0st, gist, blob, repo
 #
 # Adapter-specific environment variables:
 #   blob:  BLOB_UPLOAD_URL - Custom upload endpoint
@@ -22,10 +22,11 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ADAPTERS_DIR="$SCRIPT_DIR/adapters"
 
-# Default adapter. Pilotship edit: gist (authenticated, private-ish) instead of
-# upstream's 0x0.st, because screenshots of the portal can show client data.
+# Default adapter. Pilotship edit: repo (an orphan `evidence` branch in the
+# repo itself) instead of upstream's 0x0.st, because screenshots of the portal
+# can show client data. gist was the first choice and cannot hold binaries.
 # AGENTS.md forbids the public host; keep this default in step with the fork.
-IMAGE_ADAPTER="${IMAGE_ADAPTER:-gist}"
+IMAGE_ADAPTER="${IMAGE_ADAPTER:-repo}"
 
 BEFORE_FILE="$1"
 AFTER_FILE="$2"
