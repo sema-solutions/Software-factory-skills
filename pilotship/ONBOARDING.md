@@ -40,6 +40,11 @@ brew install ffmpeg
 Node: use the version the repo pins (check `.nvmrc`, `engines`, or CI). Most
 Pilotship repos pin Node 22.
 
+All of this is per machine, not per repo: the two npm packages are global
+installs that no repo carries, so a second laptop (or a WSL2 distro) needs
+them again. Skip the screenshot line and every UI change you ship gets
+marked UNTESTED, because the Prove beat has nothing to capture with.
+
 Then, in any factory-enabled repo, run the doctor. It checks all of the above
 plus Docker, the database container, the env file and the skills, and prints
 the exact command for each miss. The worktree script runs the same checks
